@@ -1407,7 +1407,14 @@ int API_EXPORTED libusb_open(libusb_device *dev,
 	size_t priv_size = usbi_backend.device_handle_priv_size;
 	int r;
 
-	usbi_dbg(DEVICE_CTX(dev), "open %d.%d", dev->bus_number, dev->device_address);
+    // специфика android-устройств - может быть открыто только одно устройство
+    // и открывать его нужно через libusb_wrap_sys_device
+    for_each_open_device(ctx, _dev_handle) {
+        *dev_handle = _dev_handle;
+        return LIBUSB_SUCCESS;
+    }
+
+    usbi_dbg(DEVICE_CTX(dev), "open %d.%d", dev->bus_number, dev->device_address);
 
 	if (!usbi_atomic_load(&dev->attached))
 		return LIBUSB_ERROR_NO_DEVICE;

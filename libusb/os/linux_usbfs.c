@@ -2765,6 +2765,15 @@ out:
 	return r;
 }
 
+static int linux_get_device_list(struct libusb_context *ctx, struct discovered_devs **discdevs) {
+
+    struct libusb_device_handle *handle;
+    for_each_open_device(ctx, handle) {
+        *discdevs = discovered_devs_append(*discdevs, handle->dev);
+    }
+    return LIBUSB_SUCCESS;
+}
+
 const struct usbi_os_backend usbi_backend = {
 	.name = "Linux usbfs",
 	.caps = USBI_CAP_HAS_HID_ACCESS|USBI_CAP_SUPPORTS_DETACH_KERNEL_DRIVER,
@@ -2810,4 +2819,5 @@ const struct usbi_os_backend usbi_backend = {
 	.device_priv_size = sizeof(struct linux_device_priv),
 	.device_handle_priv_size = sizeof(struct linux_device_handle_priv),
 	.transfer_priv_size = sizeof(struct linux_transfer_priv),
+    .get_device_list = linux_get_device_list
 };
